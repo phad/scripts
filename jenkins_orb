@@ -1,0 +1,16 @@
+#!/bin/bash
+if [[ $# -ne 1 ]]; then
+  echo "Syntax: jenkins_orb <project>"
+  exit 1
+fi
+
+TMPFILE=`mktemp`
+curl -s http://of1-dev-ci/view/Science/job/$1/rssAll > $TMPFILE
+STATUS=`src-external/xml2json/xml2json.py -t xml2json $TMPFILE | sed 's/{http:\/\/www.w3.org\/2005\/Atom}//g' | jq -r '.feed.entry[0].title'`
+rm $TMPFILE
+if [[ $STATUS =~ broken ]]; then
+  echo "000088"
+else
+  echo "008800"
+fi
+
