@@ -1,16 +1,16 @@
 #!/bin/bash
-if [[ $# -ne 1 ]]; then
-  echo "Syntax: jenkins_orb <project>"
+if [[ $# -ne 3 ]]; then
+  echo "Syntax: jenkins_orb <project> <fail color> <pass color>"
   exit 1
 fi
 
-TMPFILE=`mktemp`
-curl -s http://of1-dev-ci/view/Science/job/$1/rssAll > $TMPFILE
-STATUS=`src-external/xml2json/xml2json.py -t xml2json $TMPFILE | sed 's/{http:\/\/www.w3.org\/2005\/Atom}//g' | jq -r '.feed.entry[0].title'`
+TMPFILE=`mktemp /tmp/jenkins_orb.XXXXX`
+curl -s http://of1-dev-ci/job/$1/rssAll > $TMPFILE
+STATUS=`/home/paul/src-external/xml2json/xml2json.py -t xml2json $TMPFILE | sed 's/{http:\/\/www.w3.org\/2005\/Atom}//g' | jq -r '.feed.entry[0].title'`
 rm $TMPFILE
 if [[ $STATUS =~ broken ]]; then
-  echo "000088"
+  echo $2
 else
-  echo "008800"
+  echo $3
 fi
 
